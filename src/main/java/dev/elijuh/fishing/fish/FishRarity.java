@@ -14,11 +14,11 @@ import java.lang.reflect.Constructor;
 @Getter
 public enum FishRarity {
     COMMON("&7", "Common", 1f, 1f, FishCatchSoundCommon.class),
-    UNCOMMON("&a", "Uncommon", 0.1f, 2.5f, FishCatchSoundUncommon.class),
-    RARE("&b", "Rare", 0.05f, 5f, FishCatchSoundRare.class),
-    EPIC("&5", "Epic", 0.0025f, 10f, FishCatchSoundEpic.class),
-    LEGENDARY("&6", "Legendary", 0.01f, 25f, FishCatchSoundLegendary.class),
-    MYTHICAL("&e&l", "Mythical", 0.001f, 50f, FishCatchSoundMythical.class);
+    UNCOMMON("&a", "Uncommon", 0.25f, 2.5f, FishCatchSoundUncommon.class),
+    RARE("&b", "Rare", 0.1f, 5f, FishCatchSoundRare.class),
+    EPIC("&5", "Epic", 0.05f, 10f, FishCatchSoundEpic.class),
+    LEGENDARY("&6", "Legendary", 0.02f, 25f, FishCatchSoundLegendary.class),
+    MYTHICAL("&e&l", "Mythical", 0.01f, 50f, FishCatchSoundMythical.class);
 
     private final String color, display;
     private final float baseChance, averageFishPrice;

@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 @Getter
 public class Fish extends SeaCreature {
+    public static final double LEGACY_FISH_VALUE = 2.00;
     private final FishType type;
 
     public Fish(FishType type, int weight) {

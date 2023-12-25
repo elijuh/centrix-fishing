@@ -1,8 +1,7 @@
 package dev.elijuh.fishing.menu;
 
-import dev.elijuh.fishing.Core;
 import dev.elijuh.fishing.utils.item.ItemBuilder;
-import org.bukkit.GameMode;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,15 +12,13 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-
-import java.util.ArrayList;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author elijuh
  */
 public abstract class Menu implements InventoryHolder {
-    protected final ItemStack FILLER = ItemBuilder.create(Material.STAINED_GLASS_PANE).name(" ").dura(15).build();
+    protected static final ItemStack FILLER = ItemBuilder.create(Material.STAINED_GLASS_PANE).name(" ").dura(15).build();
 
     protected void fill() {
         Inventory inv = getInventory();
@@ -78,32 +75,33 @@ public abstract class Menu implements InventoryHolder {
 
     }
 
-    public static class Handler implements Listener {
+    public static void initialize(JavaPlugin plugin) {
+        Bukkit.getPluginManager().registerEvents(new Listener() {
 
-        @EventHandler
-        public void on(InventoryClickEvent e) {
-            Inventory inv = e.getClickedInventory();
-            if (inv == null) return;
-            if (inv.getHolder() instanceof Menu) {
-                Menu menu = (Menu) inv.getHolder();
-                menu.onClickEvent(e);
+            @EventHandler
+            public void on(InventoryClickEvent e) {
+                Inventory inv = e.getView().getTopInventory();
+                if (inv != null && inv.getHolder() instanceof Menu) {
+                    Menu menu = (Menu) inv.getHolder();
+                    menu.onClickEvent(e);
+                }
             }
-        }
 
-        @EventHandler
-        public void on(InventoryDragEvent e) {
-            if (e.getInventory().getHolder() instanceof Menu) {
-                Menu menu = (Menu) e.getInventory().getHolder();
-                menu.onDragEvent(e);
+            @EventHandler
+            public void on(InventoryDragEvent e) {
+                if (e.getInventory().getHolder() instanceof Menu) {
+                    Menu menu = (Menu) e.getInventory().getHolder();
+                    menu.onDragEvent(e);
+                }
             }
-        }
 
-        @EventHandler
-        public void on(InventoryCloseEvent e) {
-            if (e.getInventory().getHolder() instanceof Menu) {
-                Menu menu = (Menu) e.getInventory().getHolder();
-                menu.onCloseEvent(e);
+            @EventHandler
+            public void on(InventoryCloseEvent e) {
+                if (e.getInventory().getHolder() instanceof Menu) {
+                    Menu menu = (Menu) e.getInventory().getHolder();
+                    menu.onCloseEvent(e);
+                }
             }
-        }
+        }, plugin);
     }
 }

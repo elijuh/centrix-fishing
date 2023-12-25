@@ -5,7 +5,11 @@ import com.google.common.cache.CacheBuilder;
 import dev.elijuh.fishing.Core;
 import dev.elijuh.fishing.fish.Bait;
 import dev.elijuh.fishing.fish.Fish;
+import dev.elijuh.fishing.rod.RodData;
+import dev.elijuh.fishing.tasks.MoveItemToPlayerTask;
+import dev.elijuh.fishing.user.User;
 import dev.elijuh.fishing.utils.Text;
+import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,18 +49,37 @@ public class BukkitListener implements Listener {
         if (!Core.getTestingWhitelist().contains(p.getName())) return;
 
         if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH && e.getCaught() instanceof Item) {
-            Fish fish = Core.i().getFishService().randomCatch(Bait.NONE);
-
+            User user = Core.i().getUser(p);
             Item item = (Item) e.getCaught();
+            new MoveItemToPlayerTask(p, item, 1).start();
+            if (item.getItemStack().getType() != Material.RAW_FISH) {
+                if (!item.getItemStack().getEnchantments().isEmpty()) {
+                    user.getUserData().incrementStatistic("treasureCaught", 1);
+                } else {
+                    user.getUserData().incrementStatistic("junkCaught", 1);
+                }
+                return;
+            }
+            user.getUserData().incrementStatistic("fishCaught", 1);
+            RodData rod = RodData.fromItem(p.getItemInHand());
+            Fish fish = Core.i().getFishService().randomCatch(Bait.NONE, rod);
+
             item.setItemStack(fish.getItem());
             item.setCustomName(item.getItemStack().getItemMeta().getDisplayName());
             item.setCustomNameVisible(true);
             fishedBy.put(item, p.getUniqueId());
+
             fish.getType().getRarity().playCatchSound(p);
+
             p.sendMessage(Text.prefixed("&7You have caught a " +
                 fish.getType().getRarity().getColor() + fish.getType().getDisplay() +
                 " &7(&f" + Text.formatGrams(fish.getWeight()) + "&7)"
             ));
+
+            int heaviestCatch = user.getUserData().getStatistic("heaviestCatch");
+            if (fish.getWeight() > heaviestCatch) {
+                user.getUserData().setStatistic("heaviestCatch", fish.getWeight());
+            }
         }
     }
 }
