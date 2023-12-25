@@ -36,7 +36,6 @@ public class MySQLConfiguration {
         int port = config.get("port");
         String database = config.get("database");
 
-        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
         hikariConfig.setPoolName(Core.i().getDescription().getName().toLowerCase(Locale.ROOT) + "-pool");
         hikariConfig.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database);
         hikariConfig.setUsername(config.get("user"));

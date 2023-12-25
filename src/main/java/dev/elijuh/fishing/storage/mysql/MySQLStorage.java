@@ -25,11 +25,9 @@ public class MySQLStorage implements Storage {
     private final MySQLDao dao;
 
     public MySQLStorage() {
-        //dataSource = new HikariDataSource(new MySQLConfiguration().toHikariConfig());
-        dataSource = null;
+        dataSource = new HikariDataSource(new MySQLConfiguration().toHikariConfig());
         dao = new MySQLDao(this);
 
-        /*
         String path = "schema.sql";
         use(connection -> {
             InputStream in = Core.i().getResource(path);
@@ -45,8 +43,6 @@ public class MySQLStorage implements Storage {
                 e.printStackTrace();
             }
         });
-
-         */
     }
 
     @Override

@@ -32,7 +32,7 @@ public class UserManager implements Listener {
 
         CompletableFuture.allOf(Bukkit.getOnlinePlayers().stream().map(p ->
             Core.i().getStorage().getDao().getUserData(p.getUniqueId()).thenAccept(fetched ->
-                users.put(p.getUniqueId(), new User(p, fetched == null ? new UserData() : fetched))
+                users.put(p.getUniqueId(), new User(p, fetched))
             )
         ).toArray(CompletableFuture[]::new)).join();
     }

@@ -51,7 +51,7 @@ public class Core extends JavaPlugin {
         fishService = new FishService();
 
         Bukkit.getPluginManager().registerEvents(new BukkitListener(), this);
-        Bukkit.getPluginManager().registerEvents(new Menu.Handler(), this);
+        Menu.initialize(this);
 
         userManager = new UserManager();
         commandManager = new CommandManager();
@@ -61,7 +61,8 @@ public class Core extends JavaPlugin {
             new MaxRodCommand(),
             new TestCatchSoundCommand(),
             new FishesCommand(),
-            new FishMarketCommand()
+            new FishMarketCommand(),
+            new SetFishingStatCommand()
         );
 
         //static initialization

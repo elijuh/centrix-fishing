@@ -20,36 +20,21 @@ import java.util.logging.Logger;
  */
 @RequiredArgsConstructor
 public enum Library {
-    MYSQL_CONNECTOR_J(
-        "mysql-connector-j",
-        "8.0.33",
-        "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/{v}/mysql-connector-j-{v}.jar"
-    ),
     HIKARI_CP(
+        "com.zaxxer.hikari.HikariDataSource",
         "HikariCP",
         "4.0.3",
-        "https://repo1.maven.org/maven2/com/zaxxer/HikariCP/{v}/HikariCP-{v}.jar"
+        "com/zaxxer/"
     ),
     SLF4J_API(
+        "org.slf4j.Logger",
         "slf4j-api",
         "1.7.30",
-        "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/{v}/slf4j-api-{v}.jar"
-    ),
-    REFLECTIONS(
-        "reflections",
-        "0.10.2",
-        "https://repo1.maven.org/maven2/org/reflections/reflections/{v}/reflections-{v}.jar"
-    ),
-    JAVASSIST(
-        "javassist",
-        "3.28.0-GA",
-        "https://repo1.maven.org/maven2/org/javassist/javassist/{v}/javassist-{v}.jar"
+        "org/slf4j/"
     ),
     ;
 
-    private final String artifactId;
-    private final String version;
-    private final String repository;
+    private final String className, artifactId, version, repository;
 
     private static final Logger logger = Logger.getLogger("Libraries");
     private static final File FOLDER;
@@ -75,7 +60,17 @@ public enum Library {
         CLASS_LOADER = (URLClassLoader) Library.class.getClassLoader();
     }
 
+    public boolean isLoaded() {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
     public void load() {
+        if (isLoaded()) return;
         File file = new File(FOLDER, artifactId + "-" + version + ".jar");
         if (!file.exists()) {
             download(file);
@@ -90,7 +85,7 @@ public enum Library {
 
     public void download(File file) {
         try {
-            String urlString = repository.replace("{v}", version);
+            String urlString = "https://repo1.maven.org/maven2/" + repository + String.format("%1$s/%2$s/%1$s-%2$s.jar", artifactId, version);
             final URL url = new URL(urlString);
             final URLConnection connection = url.openConnection();
 
