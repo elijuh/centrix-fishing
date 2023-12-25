@@ -4,3 +4,9 @@ CREATE TABLE IF NOT EXISTS `user_stats`(
     `value` INT NOT NULL,
     PRIMARY KEY(`uuid`, `key`)
 );
+
+CREATE TABLE IF NOT EXISTS `names`(
+    `uuid` BINARY(16),
+    `name` VARCHAR(16),
+    PRIMARY KEY(`uuid`)
+);

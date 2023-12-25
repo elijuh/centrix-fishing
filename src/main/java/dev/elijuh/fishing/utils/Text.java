@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * @author elijuh
@@ -16,6 +17,8 @@ public class Text {
     private final NumberFormat decimalFormat = new DecimalFormat("0.#");
     @Getter
     private final NumberFormat currencyFormat = new DecimalFormat("0.00");
+    @Getter
+    private final NumberFormat format = NumberFormat.getInstance(Locale.US);
 
     private final String prefix = color("&6&lFishing &8┃ &a");
 

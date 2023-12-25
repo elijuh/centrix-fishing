@@ -22,4 +22,8 @@ public class User {
     public int getTokens() {
         return userData.getStatistic("tokens");
     }
+
+    public void addTokens(int tokens) {
+        userData.incrementStatistic("tokens", tokens);
+    }
 }

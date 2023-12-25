@@ -31,13 +31,12 @@ import java.util.List;
  */
 @Getter
 public class FishMarketMenu extends Menu {
-    private static final NumberFormat nf = NumberFormat.getInstance();
     private final Inventory inventory;
 
     public FishMarketMenu(Player p) {
         this.inventory = Bukkit.createInventory(this, 27, "Fish Market");
 
-        fillEdges();
+        fill();
 
         User user = Core.i().getUser(p);
 
@@ -83,12 +82,25 @@ public class FishMarketMenu extends Menu {
             .build()
         );
 
-        this.inventory.setItem(16, ItemBuilder.create(Material.BOOK).name("&6Your Statistics")
+        this.inventory.setItem(13, ItemBuilder.create(Material.BOOK).name("&6Fish Information")
+            .enchant(Enchantment.LUCK, 1)
+            .flag(ItemFlag.HIDE_ENCHANTS)
+            .lore("&7View the information for each fish")
+            .lore("&7to see how much they're worth")
+            .lore("&7and how much they can weigh.")
+            .lore(" ")
+            .lore("&7Left-Click &8┃ &aOpen")
+            .build()
+        );
+
+        NumberFormat nf = Text.getFormat();
+        this.inventory.setItem(16, ItemBuilder.create(Material.PAPER).name("&6Your Statistics")
             .lore("&8┃ &7Fish Caught: &f" + nf.format(user.getUserData().getStatistic("fishCaught")))
             .lore("&8┃ &7Junk Caught: &f" + nf.format(user.getUserData().getStatistic("junkCaught")))
             .lore("&8┃ &7Treasure Caught: &f" + nf.format(user.getUserData().getStatistic("treasureCaught")))
             .lore("&8┃")
             .lore("&8┃ &7Heaviest Catch: &f" + Text.formatGrams(user.getUserData().getStatistic("heaviestCatch")))
+            .lore("&8┃ &7Tokens: &b" + nf.format(user.getTokens()) + "⛁")
             .build()
         );
     }
@@ -133,12 +145,14 @@ public class FishMarketMenu extends Menu {
             }
         } else if (e.getRawSlot() == 12) {
             new RodUpgradeMenu(p).open(p);
+        } else if (e.getRawSlot() == 13) {
+            FishInfoMenu.getInstances().open(p);
         }
     }
 
     private void onSell(Player p, int count, Number worth) {
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + p.getName() + " " + worth);
-        p.sendMessage(Text.prefixed("&7You have sold &a" + nf.format(count)
+        p.sendMessage(Text.prefixed("&7You have sold &a" + Text.getFormat().format(count)
             + " &7fish for &a$" + Text.getCurrencyFormat().format(worth)));
         p.closeInventory();
         p.playSound(p.getLocation(), Sound.BAT_TAKEOFF, 1f, 1f);

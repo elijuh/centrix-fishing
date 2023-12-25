@@ -2,3 +2,5 @@ name: Fishing
 version: ${project.version}
 author: elijuh
 main: dev.elijuh.fishing.Core
+depend:
+  - HolographicDisplays

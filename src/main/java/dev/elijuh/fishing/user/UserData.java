@@ -2,7 +2,10 @@ package dev.elijuh.fishing.user;
 
 import lombok.Getter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author elijuh

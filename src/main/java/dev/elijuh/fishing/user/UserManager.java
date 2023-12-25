@@ -1,7 +1,6 @@
 package dev.elijuh.fishing.user;
 
 import dev.elijuh.fishing.Core;
-import dev.elijuh.fishing.storage.Dao;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,6 +34,10 @@ public class UserManager implements Listener {
                 users.put(p.getUniqueId(), new User(p, fetched))
             )
         ).toArray(CompletableFuture[]::new)).join();
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(Core.i(), () ->
+            users.values().forEach(this::save), 6000L, 6000L
+        );
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -62,8 +65,15 @@ public class UserManager implements Listener {
     public void on(PlayerQuitEvent e) {
         User user = users.remove(e.getPlayer().getUniqueId());
         if (user != null) {
-            Core.i().getStorage().getDao().save(user.uuid(), user.getUserData());
+            save(user);
         }
+    }
+
+    public CompletableFuture<Void> save(User user) {
+        return CompletableFuture.allOf(
+            Core.i().getStorage().getDao().save(user.uuid(), user.getUserData()),
+            Core.i().getStorage().getDao().saveName(user.uuid(), user.getPlayer().getName())
+        );
     }
 
     public User getUser(Player player) {
@@ -71,9 +81,6 @@ public class UserManager implements Listener {
     }
 
     public void shutdown() {
-        Dao dao = Core.i().getStorage().getDao();
-        CompletableFuture.allOf(users.values().stream().map(user ->
-            dao.save(user.uuid(), user.getUserData())
-        ).toArray(CompletableFuture[]::new)).join();
+        CompletableFuture.allOf(users.values().stream().map(this::save).toArray(CompletableFuture[]::new)).join();
     }
 }

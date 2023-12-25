@@ -3,7 +3,6 @@ package dev.elijuh.fishing.utils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -26,17 +25,18 @@ public class YamlFile {
 
     public void setLocation(String path, Location location) {
         ConfigurationSection section = config.createSection(path);
-        section.set("x", location.getBlockX() + 0.5);
-        section.set("y", location.getBlockY() + 0.5);
-        section.set("z", location.getBlockZ() + 0.5);
+        section.set("world", location.getWorld().getName());
+        section.set("x", location.getX());
+        section.set("y", location.getY());
+        section.set("z", location.getZ());
         section.set("yaw", Math.round(location.getYaw()));
         section.set("pitch", Math.round(location.getPitch()));
     }
 
-    public Location getLocation(String path, World world) {
+    public Location getLocation(String path) {
         ConfigurationSection section = config.getConfigurationSection(path);
         if (section == null) return null;
-        return new Location(world,
+        return new Location(Bukkit.getWorld(section.getString("world")),
             section.getDouble("x"),
             section.getDouble("y"),
             section.getDouble("z"),

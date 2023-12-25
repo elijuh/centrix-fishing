@@ -107,9 +107,20 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>me.filoghost.holographicdisplays</groupId>
+            <artifactId>holographicdisplays-api</artifactId>
+            <version>3.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api</artifactId>
             <version>2.12.2</version>
+        </dependency>
+        <dependency>
+            <groupId>xyz.tozymc.spigot</groupId>
+            <artifactId>title-api</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 

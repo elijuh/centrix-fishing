@@ -5,6 +5,7 @@ import dev.elijuh.fishing.menu.Menu;
 import dev.elijuh.fishing.rod.RodData;
 import dev.elijuh.fishing.rod.RodUpgrade;
 import dev.elijuh.fishing.user.User;
+import dev.elijuh.fishing.utils.Text;
 import dev.elijuh.fishing.utils.item.ItemBuilder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -17,7 +18,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,11 +67,11 @@ public class RodUpgradeMenu extends Menu {
             int priceTokens = upgrade.getPriceForLevel(current + 1);
 
             if (current >= upgrade.getMaxValue() ||
-                user.getUserData().getStatistic("tokens") < priceTokens) {
+                user.getTokens() < priceTokens) {
                 p.playSound(p.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
                 return;
             }
-            user.getUserData().incrementStatistic("tokens", -priceTokens);
+            user.addTokens(-priceTokens);
             p.playSound(p.getLocation(), Sound.ANVIL_USE, 1f, 2f);
             p.playSound(p.getLocation(), Sound.LEVEL_UP, 1f, 1f);
             data.setUpgradeLevel(upgrade, current + 1);
@@ -118,8 +118,8 @@ public class RodUpgradeMenu extends Menu {
                 .lore("&8┃");
 
             if (level < upgrade.getMaxValue()) {
-                builder.lore("&8┃ &7Tokens Required: &b" + NumberFormat.getInstance().format(user.getTokens()) +
-                    "&7/&b" + NumberFormat.getInstance().format(upgrade.getPriceForLevel(level + 1)) + "⛁")
+                builder.lore("&8┃ &7Tokens Required: &b" + Text.getFormat().format(user.getTokens()) +
+                    "&7/&b" + Text.getFormat().format(upgrade.getPriceForLevel(level + 1)) + "⛁")
                     .lore("&8┃ &7Left-Click to &aUpgrade");
             } else {
                 builder.lore("&a&lLevel Maxed");

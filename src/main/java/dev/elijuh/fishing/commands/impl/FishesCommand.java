@@ -23,6 +23,6 @@ public class FishesCommand extends Command {
 
     @Override
     public void onExecute(Player p, String[] args) {
-        FishInfoMenu.getIsntance().open(p);
+        FishInfoMenu.getInstances().open(p);
     }
 }

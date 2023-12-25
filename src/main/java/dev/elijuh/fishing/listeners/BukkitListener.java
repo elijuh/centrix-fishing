@@ -17,6 +17,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import xyz.tozymc.spigot.api.title.TitleApi;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +64,11 @@ public class BukkitListener implements Listener {
             user.getUserData().incrementStatistic("fishCaught", 1);
             RodData rod = RodData.fromItem(p.getItemInHand());
             Fish fish = Core.i().getFishService().randomCatch(Bait.NONE, rod);
+
+            int tokens = fish.getType().getRarity().getTokenValue();
+            user.addTokens(tokens);
+
+            TitleApi.sendActionbar(p, Text.color("&7+ &b" + tokens + "⛁ &7(" + Text.getFormat().format(user.getTokens()) + ")"));
 
             item.setItemStack(fish.getItem());
             item.setCustomName(item.getItemStack().getItemMeta().getDisplayName());

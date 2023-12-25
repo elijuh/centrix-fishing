@@ -9,7 +9,6 @@ import dev.elijuh.fishing.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -52,7 +51,7 @@ public class SetFishingStatCommand extends Command {
             p.sendMessage(Text.color("&cInvalid operation: &7" + op));
         }
         p.sendMessage(Text.prefixed("&7You have set &a" + target.getName() + "'s &e" + key + " &7to &a" +
-            NumberFormat.getInstance().format(user.getUserData().getStatistic(key))));
+            Text.getFormat().format(user.getUserData().getStatistic(key))));
     }
 
     private boolean operation(UserData data, String key, int amount, char c) {
