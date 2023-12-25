@@ -15,6 +15,7 @@ import dev.elijuh.fishing.utils.Library;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -83,6 +84,7 @@ public class Core extends JavaPlugin {
         for (Player p : Bukkit.getOnlinePlayers()) {
             Inventory top = p.getOpenInventory().getTopInventory();
             if (top != null && top.getHolder() instanceof Menu) {
+                ((Menu) top.getHolder()).onCloseEvent(new InventoryCloseEvent(p.getOpenInventory()));
                 p.closeInventory();
             }
         }

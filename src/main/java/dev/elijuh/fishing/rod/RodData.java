@@ -10,7 +10,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -26,7 +26,7 @@ public class RodData {
         .withModifier(FishRarity.MYTHICAL, 4f)
         .build();
 
-    private final Map<RodUpgrade, Integer> upgrades = new HashMap<>();
+    private final Map<RodUpgrade, Integer> upgrades = new LinkedHashMap<>();
     private final String name;
 
     public int getUpgradeLevel(RodUpgrade upgrade) {

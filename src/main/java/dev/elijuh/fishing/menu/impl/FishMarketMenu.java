@@ -72,7 +72,7 @@ public class FishMarketMenu extends Menu {
             .build()
         );
 
-        this.inventory.setItem(12, ItemBuilder.create(Material.FISHING_ROD).name("&bFishing Rod Upgrader")
+        this.inventory.setItem(12, ItemBuilder.create(Material.FISHING_ROD).name("&aFishing Rod Upgrader")
             .enchant(Enchantment.LUCK, 1)
             .flag(ItemFlag.HIDE_ENCHANTS)
             .lore("&7Increase the fun of fishing by upgrading")
@@ -132,7 +132,7 @@ public class FishMarketMenu extends Menu {
                 p.sendMessage(Text.prefixed("&7You don't have any legacy fish to sell."));
             }
         } else if (e.getRawSlot() == 12) {
-            new RodUpgradeMenu().open(p);
+            new RodUpgradeMenu(p).open(p);
         }
     }
 

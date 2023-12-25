@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -27,11 +28,15 @@ import java.util.Map;
 public class RodUpgradeMenu extends Menu {
     private final Inventory inventory;
 
+    private final Player p;
+    private final User user;
     private ItemStack item;
     private RodData data;
 
-    public RodUpgradeMenu() {
+    public RodUpgradeMenu(Player p) {
         this.inventory = Bukkit.createInventory(this, 36, "Rod Upgrades");
+        this.p = p;
+        this.user = Core.i().getUser(p);
 
         fill();
         inventory.setItem(13, null);
@@ -41,10 +46,9 @@ public class RodUpgradeMenu extends Menu {
     @Override
     public void onClickEvent(InventoryClickEvent e) {
         e.setCancelled(true);
-        Player p = (Player) e.getWhoClicked();
         if (e.getClickedInventory() instanceof PlayerInventory) {
             if (this.item != null) {
-                deselect(p);
+                deselect();
             }
 
             ItemStack item = e.getClickedInventory().getItem(e.getSlot());
@@ -55,11 +59,10 @@ public class RodUpgradeMenu extends Menu {
             p.getInventory().setItem(e.getSlot(), null);
         } else if (e.getRawSlot() == 13) {
             p.playSound(p.getLocation(), Sound.CHICKEN_EGG_POP, 1f, 1f);
-            deselect(p);
+            deselect();
         } else {
             RodUpgrade upgrade = upgradeButtonSlots.get(e.getRawSlot());
             if (upgrade == null) return;
-            User user = Core.i().getUser(p);
             int current = data.getUpgradeLevel(upgrade);
             int priceTokens = upgrade.getPriceForLevel(current + 1);
 
@@ -76,6 +79,11 @@ public class RodUpgradeMenu extends Menu {
         }
     }
 
+    @Override
+    public void onCloseEvent(InventoryCloseEvent e) {
+        deselect();
+    }
+
     private void select(ItemStack item) {
         this.item = item;
         inventory.setItem(13, item);
@@ -83,7 +91,7 @@ public class RodUpgradeMenu extends Menu {
         showButtons();
     }
 
-    private void deselect(Player p) {
+    private void deselect() {
         if (item == null) return;
 
         //TODO: add to stash on overflow
@@ -103,15 +111,21 @@ public class RodUpgradeMenu extends Menu {
         for (RodUpgrade upgrade : RodUpgrade.values()) {
             int level = data.getUpgradeLevel(upgrade);
             upgradeButtonSlots.put(slot, upgrade);
-            inventory.setItem(slot++, ItemBuilder.create(Material.ENCHANTED_BOOK)
+            ItemBuilder builder = ItemBuilder.create(Material.ENCHANTED_BOOK)
                 .name("&a" + upgrade.getDisplay())
                 .lore("&8┃ &7" + upgrade.getDescription())
                 .lore("&8┃ &7Level: &a" + level + "&7/&a" + upgrade.getMaxValue())
-                .lore("&8┃")
-                .lore("&8┃ &7Upgrade Price: &b" + (level >= upgrade.getMaxValue() ? "&cN/A &7(Maxed)" :
-                    NumberFormat.getInstance().format(upgrade.getPriceForLevel(level + 1)) + "⛁"))
-                .lore("&8┃ &7Left-Click to &aUpgrade")
-                .build());
+                .lore("&8┃");
+
+            if (level < upgrade.getMaxValue()) {
+                builder.lore("&8┃ &7Tokens Required: &b" + NumberFormat.getInstance().format(user.getTokens()) +
+                    "&7/&b" + NumberFormat.getInstance().format(upgrade.getPriceForLevel(level + 1)) + "⛁")
+                    .lore("&8┃ &7Left-Click to &aUpgrade");
+            } else {
+                builder.lore("&a&lLevel Maxed");
+            }
+
+            inventory.setItem(slot++, builder.build());
         }
     }
 

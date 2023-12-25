@@ -18,4 +18,8 @@ public class User {
     public UUID uuid() {
         return player.getUniqueId();
     }
+
+    public int getTokens() {
+        return userData.getStatistic("tokens");
+    }
 }

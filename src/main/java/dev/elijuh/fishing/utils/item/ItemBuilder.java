@@ -47,7 +47,7 @@ public class ItemBuilder implements Cloneable {
     }
 
     public ItemBuilder name(String name) {
-        this.meta.setDisplayName(Text.color(name));
+        this.meta.setDisplayName(name == null ? null : Text.color(name));
         return this;
     }
 
