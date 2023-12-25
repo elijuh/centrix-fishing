@@ -68,7 +68,7 @@ public class BukkitListener implements Listener {
             int tokens = fish.getType().getRarity().getTokenValue();
             user.addTokens(tokens);
 
-            TitleApi.sendActionbar(p, Text.color("&7+ &b" + tokens + "⛁ &7(" + Text.getFormat().format(user.getTokens()) + ")"));
+            TitleApi.sendActionbar(p, Text.color("&7+ &b" + tokens + "⛁ &8(&b" + Text.getFormat().format(user.getTokens()) + "&8)"));
 
             item.setItemStack(fish.getItem());
             item.setCustomName(item.getItemStack().getItemMeta().getDisplayName());
