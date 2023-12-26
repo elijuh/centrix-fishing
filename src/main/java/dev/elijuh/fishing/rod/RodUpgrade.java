@@ -14,7 +14,9 @@ import java.util.Map;
 @Getter
 public enum RodUpgrade {
     FISHING_SPEED("Fishing Speed", "Shorten the duration between catching fish.", 8, 2500, Enchantment.LURE),
-    INCREASED_LUCK("Increased Luck", "Higher chance of catching rarer fish and treasure.", 10, 1000, Enchantment.LUCK);
+    INCREASED_LUCK("Increased Luck", "Higher chance of catching rarer fish and treasure.", 10, 1000, Enchantment.LUCK),
+    DURABILITY("Durability", "Increase your rod's lifetime.", 5, 500, Enchantment.DURABILITY),
+    ;
 
     private final String display, description;
     private final int maxValue, tokensPerLevel;

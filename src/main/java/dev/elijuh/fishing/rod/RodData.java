@@ -28,6 +28,15 @@ public class RodData {
 
     private final Map<RodUpgrade, Integer> upgrades = new LinkedHashMap<>();
     private final String name;
+    private final short dura;
+
+    public RodData() {
+        this(null);
+    }
+
+    public RodData(String name) {
+        this(name, (short) 0);
+    }
 
     public int getUpgradeLevel(RodUpgrade upgrade) {
         return upgrades.getOrDefault(upgrade, 0);
@@ -50,9 +59,8 @@ public class RodData {
 
     public ItemStack toItem() {
         ItemBuilder builder = ItemBuilder.create(Material.FISHING_ROD)
-            .name(name)
+            .name(name).dura(dura)
             .flag(ItemFlag.HIDE_ENCHANTS)
-            .unbreakable(true)
             .lore(" ");
 
         if (!upgrades.isEmpty()) {
@@ -70,7 +78,7 @@ public class RodData {
     public static RodData fromItem(ItemStack item) {
         Preconditions.checkArgument(item.getType() == Material.FISHING_ROD);
 
-        RodData data = new RodData(item.getItemMeta().getDisplayName());
+        RodData data = new RodData(item.getItemMeta().getDisplayName(), item.getDurability());
 
         for (Map.Entry<Enchantment, Integer> entry : item.getEnchantments().entrySet()) {
             RodUpgrade upgrade = RodUpgrade.fromVanillaBase(entry.getKey());
