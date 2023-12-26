@@ -16,7 +16,7 @@ public class RainbowDoubleHelixTrail extends HelixTrail {
     private final HSVColor hsv = HSVColor.fromRGB(255, 0, 0);
 
     public RainbowDoubleHelixTrail(Projectile projectile) {
-        super(projectile, 0.5, 30,  1);
+        super(projectile, 0.5, 20, 1);
     }
 
     @Override
