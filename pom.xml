@@ -122,6 +122,11 @@
             <artifactId>title-api</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.xenondevs</groupId>
+            <artifactId>particle</artifactId>
+            <version>1.8.4</version>
+        </dependency>
     </dependencies>
 
 </project>

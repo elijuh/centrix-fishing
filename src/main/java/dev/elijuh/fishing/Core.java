@@ -9,6 +9,7 @@ import dev.elijuh.fishing.leaderboard.LeaderboardManager;
 import dev.elijuh.fishing.listeners.BukkitListener;
 import dev.elijuh.fishing.maintenance.MaintenanceManager;
 import dev.elijuh.fishing.menu.Menu;
+import dev.elijuh.fishing.rod.RodTrailHandler;
 import dev.elijuh.fishing.storage.Storage;
 import dev.elijuh.fishing.storage.mysql.MySQLStorage;
 import dev.elijuh.fishing.user.User;
@@ -63,6 +64,7 @@ public class Core extends JavaPlugin {
 
 
         Bukkit.getPluginManager().registerEvents(new BukkitListener(), this);
+        Bukkit.getPluginManager().registerEvents(new RodTrailHandler(), this);
         Menu.initialize(this);
 
         userManager = new UserManager();
@@ -103,6 +105,7 @@ public class Core extends JavaPlugin {
         }
 
         FishCatchSoundCommon.getExecutor().shutdownNow();
+        RodTrailHandler.getScheduler().shutdownNow();
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             Inventory top = p.getOpenInventory().getTopInventory();

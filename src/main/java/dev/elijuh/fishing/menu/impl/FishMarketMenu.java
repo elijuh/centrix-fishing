@@ -1,5 +1,6 @@
 package dev.elijuh.fishing.menu.impl;
 
+import com.google.common.collect.ImmutableSet;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import dev.elijuh.fishing.Core;
 import dev.elijuh.fishing.animations.impl.sound.impl.FishSellSound;
@@ -7,24 +8,24 @@ import dev.elijuh.fishing.fish.Fish;
 import dev.elijuh.fishing.fish.FishType;
 import dev.elijuh.fishing.menu.Menu;
 import dev.elijuh.fishing.user.User;
-import dev.elijuh.fishing.utils.PlayerUtil;
 import dev.elijuh.fishing.utils.Text;
 import dev.elijuh.fishing.utils.item.ItemBuilder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * @author elijuh
@@ -40,12 +41,14 @@ public class FishMarketMenu extends Menu {
 
         User user = Core.i().getUser(p);
 
-        List<Fish> fishes = PlayerUtil.getFishesInInventory(p);
-        float sumWorth = (float) fishes.stream().mapToDouble(fish -> fish.getType().getPricePerGram() * fish.getWeight()).sum();
+        Map<Fish, Integer> fishes = getFishesInInventory(p);
+        float sumWorth = (float) fishes.entrySet().stream().mapToDouble(entry -> {
+            Fish fish = entry.getKey();
+            return fish.getType().getPricePerGram() * fish.getWeight() * entry.getValue();
+        }).sum();
 
-        this.inventory.setItem(10, ItemBuilder.create(Material.WATER_BUCKET).name("&eSell All Fish")
-            .enchant(Enchantment.LUCK, 1)
-            .flag(ItemFlag.HIDE_ENCHANTS)
+        this.inventory.setItem(10, ItemBuilder.create(fishes.isEmpty() ? Material.BUCKET : Material.WATER_BUCKET)
+            .name("&eSell All Fish")
             .lore("&7Sells all of the fish in your inventory.")
             .lore(" ")
             .lore("&8┃ &7Fishes: &6" + fishes.size())
@@ -55,11 +58,9 @@ public class FishMarketMenu extends Menu {
             .build()
         );
 
-        int fishesLegacy = PlayerUtil.getLegacyFishesInInventory(p);
+        int fishesLegacy = getLegacyFishesInInventory(p);
 
         this.inventory.setItem(11, ItemBuilder.create(Material.RAW_FISH).name("&bSell All Legacy Fish")
-            .enchant(Enchantment.LUCK, 1)
-            .flag(ItemFlag.HIDE_ENCHANTS)
             .lore("&7Have some boring old vanilla fish")
             .lore("&7from fishing before the new update?")
             .lore("&7No worries, you can sell them to me for &a$" + Text.getCurrencyFormat().format(Fish.LEGACY_FISH_VALUE) + " &7each!")
@@ -71,9 +72,23 @@ public class FishMarketMenu extends Menu {
             .build()
         );
 
-        this.inventory.setItem(12, ItemBuilder.create(Material.FISHING_ROD).name("&aFishing Rod Upgrader")
-            .enchant(Enchantment.LUCK, 1)
-            .flag(ItemFlag.HIDE_ENCHANTS)
+        int junk = getFishingJunkInInventory(p);
+
+        this.inventory.setItem(12, ItemBuilder.create(Material.BOWL).name("&bSell All Junk")
+            .lore("&7Not having the best of luck?")
+            .lore("&7I'll buy your &esaddles&7, &ebowls&7,")
+            .lore("&estring&7, &etripwire hooks&7, &eink sacs&7,")
+            .lore("&ebones&7, &eleather&7, &elily pads&7,")
+            .lore("&erotten flesh&7, and &enametags&7!")
+            .lore(" ")
+            .lore("&8┃ &7Junk: &6" + junk)
+            .lore("&8┃ &7Worth: &a$" + Text.getCurrencyFormat().format(junk * Fish.JUNK_VALUE))
+            .lore(" ")
+            .lore("&7Left-Click &8┃ &aSell All")
+            .build()
+        );
+
+        this.inventory.setItem(13, ItemBuilder.create(Material.FISHING_ROD).name("&aFishing Rod Upgrader")
             .lore("&7Increase the fun of fishing by upgrading")
             .lore("&7your &eFishing Rod &7for the fastest catches")
             .lore("&7and catching rarer fish species!")
@@ -82,9 +97,7 @@ public class FishMarketMenu extends Menu {
             .build()
         );
 
-        this.inventory.setItem(13, ItemBuilder.create(Material.BOOK).name("&6Fish Information")
-            .enchant(Enchantment.LUCK, 1)
-            .flag(ItemFlag.HIDE_ENCHANTS)
+        this.inventory.setItem(14, ItemBuilder.create(Material.BOOK).name("&6Fish Information")
             .lore("&7View the information for each fish")
             .lore("&7to see how much they're worth")
             .lore("&7and how much they can weigh.")
@@ -110,52 +123,90 @@ public class FishMarketMenu extends Menu {
         e.setCancelled(true);
         Player p = (Player) e.getWhoClicked();
         if (e.getRawSlot() == 10) {
-            PlayerInventory pInv = p.getInventory();
-            int count = 0;
-            BigDecimal total = BigDecimal.ZERO;
-            for (int i = 0; i < 36; i++) {
-                ItemStack item = pInv.getItem(i);
-                if (item == null) continue;
+            sellAllFromInventory(p, "fish", item -> {
                 NBTItem nbt = new NBTItem(item);
-                if (!nbt.hasTag("fish.type") || !nbt.hasTag("fish.weight")) continue;
+                if (!nbt.hasTag("fish.type") || !nbt.hasTag("fish.weight")) return null;
                 Integer typeId = nbt.getInteger("fish.type");
                 Integer grams = nbt.getInteger("fish.weight");
-                total = total.add(BigDecimal.valueOf(FishType.byId(typeId).getPricePerGram() * grams));
-                count++;
-                pInv.setItem(i, null);
-            }
-            if (count > 0) {
-                onSell(p, count, total);
-            } else {
-                p.sendMessage(Text.prefixed("&7You don't have any fish to sell."));
-            }
+                return BigDecimal.valueOf(FishType.byId(typeId).getPricePerGram() * grams);
+            });
         } else if (e.getRawSlot() == 11) {
-            PlayerInventory pInv = p.getInventory();
-            int count = 0;
-            for (int i = 0; i < 36; i++) {
-                ItemStack item = pInv.getItem(i);
-                if (item == null || item.getType() != Material.RAW_FISH || item.hasItemMeta()) continue;
-                count += item.getAmount();
-                pInv.setItem(i, null);
-            }
-            if (count > 0) {
-                onSell(p, count, BigDecimal.valueOf(count).multiply(BigDecimal.valueOf(Fish.LEGACY_FISH_VALUE)));
-            } else {
-                p.sendMessage(Text.prefixed("&7You don't have any legacy fish to sell."));
-            }
+            sellAllFromInventory(p, "legacy fish", item ->
+                item.getType() == Material.RAW_FISH && !item.hasItemMeta() ?
+                    BigDecimal.valueOf(Fish.LEGACY_FISH_VALUE) : null
+            );
         } else if (e.getRawSlot() == 12) {
-            new RodUpgradeMenu(p).open(p);
+            sellAllFromInventory(p, "junk items", item ->
+                JUNK_TYPES.contains(item.getType()) && !item.hasItemMeta() &&  item.getDurability() == 0 ?
+                    BigDecimal.valueOf(Fish.JUNK_VALUE) : null
+            );
         } else if (e.getRawSlot() == 13) {
+            new RodUpgradeMenu(p).open(p);
+        } else if (e.getRawSlot() == 14) {
             FishInfoMenu.getInstances().open(p);
         }
     }
 
-    private void onSell(Player p, int count, Number worth) {
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + p.getName() + " " + worth);
+    private void sellAllFromInventory(Player p, String called, Function<ItemStack, BigDecimal> supplier) {
+        PlayerInventory pInv = p.getInventory();
+        BigDecimal total = BigDecimal.ZERO;
+        int count = 0;
+        for (int i = 0; i < 36; i++) {
+            ItemStack item = pInv.getItem(i);
+            if (item == null) continue;
+            BigDecimal worth = supplier.apply(item);
+            if (worth == null) continue;
+            total = total.add(worth).multiply(BigDecimal.valueOf(item.getAmount()));
+            count += item.getAmount();
+            pInv.setItem(i, null);
+        }
+        if (count == 0) {
+            p.sendMessage(Text.prefixed("&7You don't have any legacy fish to sell."));
+            return;
+        }
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + p.getName() + " " + total);
         p.sendMessage(Text.prefixed("&7You have sold &a" + Text.getFormat().format(count)
-            + " &7fish for &a$" + Text.getCurrencyFormat().format(worth)));
+            + " &7" + called + " for &a$" + Text.getCurrencyFormat().format(total)));
         p.closeInventory();
         p.playSound(p.getLocation(), Sound.BAT_TAKEOFF, 1f, 1f);
         new FishSellSound(p).start();
+    }
+
+    private Map<Fish, Integer> getFishesInInventory(Player p) {
+        Map<Fish, Integer> fishes = new HashMap<>();
+        for (int i = 0; i < 36; i++) {
+            ItemStack item = p.getInventory().getItem(i);
+            if (item == null) continue;
+            NBTItem nbt = new NBTItem(item);
+            if (!nbt.hasTag("fish.type") || !nbt.hasTag("fish.weight")) continue;
+            Integer typeId = nbt.getInteger("fish.type");
+            Integer grams = nbt.getInteger("fish.weight");
+            fishes.put(new Fish(FishType.byId(typeId), grams), item.getAmount());
+        }
+        return fishes;
+    }
+
+    private int getLegacyFishesInInventory(Player p) {
+        int amount = 0;
+        for (int i = 0; i < 36; i++) {
+            ItemStack item = p.getInventory().getItem(i);
+            if (item == null || item.getType() != Material.RAW_FISH || item.hasItemMeta()) continue;
+            amount += item.getAmount();
+        }
+        return amount;
+    }
+    private static final Set<Material> JUNK_TYPES = ImmutableSet.of(
+        Material.SADDLE, Material.BOWL, Material.STRING, Material.TRIPWIRE_HOOK, Material.NAME_TAG,
+        Material.INK_SACK, Material.BONE, Material.LEATHER, Material.ROTTEN_FLESH, Material.WATER_LILY
+    );
+
+    private int getFishingJunkInInventory(Player p) {
+        int amount = 0;
+        for (int i = 0; i < 36; i++) {
+            ItemStack item = p.getInventory().getItem(i);
+            if (item == null || !JUNK_TYPES.contains(item.getType()) || item.getDurability() != 0 || item.hasItemMeta()) continue;
+            amount += item.getAmount();
+        }
+        return amount;
     }
 }
