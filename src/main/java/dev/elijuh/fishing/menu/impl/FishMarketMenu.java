@@ -156,7 +156,7 @@ public class FishMarketMenu extends Menu {
             if (item == null) continue;
             BigDecimal worth = supplier.apply(item);
             if (worth == null) continue;
-            total = total.add(worth).multiply(BigDecimal.valueOf(item.getAmount()));
+            total = total.add(worth.multiply(BigDecimal.valueOf(item.getAmount())));
             count += item.getAmount();
             pInv.setItem(i, null);
         }
