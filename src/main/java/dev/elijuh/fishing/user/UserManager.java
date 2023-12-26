@@ -42,7 +42,6 @@ public class UserManager implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(AsyncPlayerPreLoginEvent e) {
-        if (!Core.getTestingWhitelist().contains(e.getName())) return;
         if (e.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) return;
 
         UserData fetched = Core.i().getStorage().getDao().getUserData(e.getUniqueId()).join();
@@ -51,7 +50,6 @@ public class UserManager implements Listener {
 
     @EventHandler
     public void on(PlayerJoinEvent e) {
-        if (!Core.getTestingWhitelist().contains(e.getPlayer().getName())) return;
         Player p = e.getPlayer();
         UserData data = userDataCache.remove(p.getUniqueId());
         if (data == null) {

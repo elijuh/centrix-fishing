@@ -24,8 +24,8 @@ public class FishMarketCommand extends Command {
 
     @Override
     public void onExecute(Player p, String[] args) {
-        if (!Core.getTestingWhitelist().contains(p.getName())) {
-            p.sendMessage(Text.prefixed("&7This feature hasn't been released to public yet!"));
+        if (!Core.i().getMaintenanceManager().allows(p)) {
+            p.sendMessage(Text.prefixed("&7This feature is in maintenance."));
             return;
         }
         new FishMarketMenu(p).open(p);

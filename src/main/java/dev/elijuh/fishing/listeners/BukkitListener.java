@@ -47,7 +47,7 @@ public class BukkitListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(PlayerFishEvent e) {
         Player p = e.getPlayer();
-        if (!Core.getTestingWhitelist().contains(p.getName())) return;
+        if (!Core.i().getMaintenanceManager().allows(p)) return;
 
         if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH && e.getCaught() instanceof Item) {
             User user = Core.i().getUser(p);

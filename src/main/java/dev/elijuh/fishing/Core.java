@@ -1,6 +1,5 @@
 package dev.elijuh.fishing;
 
-import com.google.common.collect.ImmutableSet;
 import dev.elijuh.fishing.animations.impl.sound.impl.FishCatchSoundCommon;
 import dev.elijuh.fishing.commands.CommandManager;
 import dev.elijuh.fishing.commands.impl.*;
@@ -8,6 +7,7 @@ import dev.elijuh.fishing.fish.services.FishService;
 import dev.elijuh.fishing.leaderboard.Leaderboard;
 import dev.elijuh.fishing.leaderboard.LeaderboardManager;
 import dev.elijuh.fishing.listeners.BukkitListener;
+import dev.elijuh.fishing.maintenance.MaintenanceManager;
 import dev.elijuh.fishing.menu.Menu;
 import dev.elijuh.fishing.storage.Storage;
 import dev.elijuh.fishing.storage.mysql.MySQLStorage;
@@ -23,18 +23,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * @author elijuh
  */
 @Getter
 public class Core extends JavaPlugin {
-    @Getter
-    private static final Set<String> testingWhitelist = ImmutableSet.of(
-        "elijuh", "BrotherHate"
-    );
-
     private static Core instance;
 
     private YamlFile locations;
@@ -43,6 +38,7 @@ public class Core extends JavaPlugin {
     private UserManager userManager;
     private LeaderboardManager leaderboardManager;
     private CommandManager commandManager;
+    private MaintenanceManager maintenanceManager;
     private FishService fishService;
 
     @Override
@@ -55,6 +51,11 @@ public class Core extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getConfig().options().copyDefaults(true);
+        getConfig().addDefault("maintenance.enabled", true);
+        getConfig().addDefault("maintenance.whitelistedNames", new ArrayList<>());
+        saveConfig();
+
         storage = new MySQLStorage();
         fishService = new FishService();
 
@@ -81,6 +82,8 @@ public class Core extends JavaPlugin {
             new SetFishingStatCommand(),
             new FishAdminCommand()
         );
+
+        maintenanceManager = new MaintenanceManager();
 
         //static initialization
         FishCatchSoundCommon.getExecutor();
