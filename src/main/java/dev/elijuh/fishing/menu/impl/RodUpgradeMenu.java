@@ -52,7 +52,7 @@ public class RodUpgradeMenu extends Menu {
             }
 
             ItemStack item = e.getClickedInventory().getItem(e.getSlot());
-            if (item.getType() != Material.FISHING_ROD) return;
+            if (item == null || item.getType() != Material.FISHING_ROD) return;
 
             p.playSound(p.getLocation(), Sound.CHICKEN_EGG_POP, 1f, 1f);
             select(item);
